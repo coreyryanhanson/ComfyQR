@@ -4,6 +4,8 @@ A set of ComfyUI nodes to dynamically create QR image layers for generative QR a
 
 This repository is managed publicly on [Gitlab](https://gitlab.com/sofuego-comfy-nodes/comfy-qr), but also mirrored on [Github](https://github.com/coreyryanhanson/comfy-qr). Please submit any [issues](https://gitlab.com/sofuego-comfy-nodes/comfy-qr/-/issues) or [pull requests](https://gitlab.com/sofuego-comfy-nodes/comfy-qr/-/merge_requests) to the gitlab repo.
 
+![QR code with repo link](img/badgers.png)
+
 ## Getting started
 
 This project currently contains two nodes for generating QR codes.

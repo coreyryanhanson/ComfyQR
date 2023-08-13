@@ -191,7 +191,7 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
         }
 
     RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "MASK", "INT", "INT")
-    RETURN_NAMES = ("QR_FLATTENED", "MODULE_LAYER", "FUNCTION_LAYER", "FUNCTION_MASK", "QR_VERSION", "IMAGE_SIZE")
+    RETURN_NAMES = ("QR_FLATTENED", "MODULE_LAYER", "FINDER_LAYER", "FINDER_MASK", "QR_VERSION", "IMAGE_SIZE")
 
     def _generate_finder_pattern_ranges(self, module_size, border_size):
         outer = module_size * border_size

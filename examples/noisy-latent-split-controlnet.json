@@ -192,7 +192,7 @@
           "slot_index": 0
         }
       ],
-      "title": "Function Layer Composite",
+      "title": "Finder Layer Composite",
       "properties": {
         "Node name for S&R": "ImageCompositeMasked"
       },
@@ -352,7 +352,7 @@
           "slot_index": 1
         },
         {
-          "name": "FUNCTION_LAYER",
+          "name": "FINDER_LAYER",
           "type": "IMAGE",
           "links": [
             127
@@ -361,7 +361,7 @@
           "slot_index": 2
         },
         {
-          "name": "FUNCTION_MASK",
+          "name": "FINDER_MASK",
           "type": "MASK",
           "links": [
             104,
@@ -671,7 +671,7 @@
           "slot_index": 0
         }
       ],
-      "title": "Function Layer Prompt",
+      "title": "Finder Layer Prompt",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },

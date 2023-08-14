@@ -2,7 +2,7 @@
 
 A set of ComfyUI nodes to dynamically create QR image layers for generative QR art without the hassle of leaving the webui.
 
-Everything in this pack is for the purpose of creating patterns. If you would like to evaluate rendered patterns for scannability, check out the companion project [Comfy QR Validation Nodes](https://gitlab.com/sofuego-comfy-nodes/comfy-qr-validation-nodes). Any workflow in the example that ends with "validated" assume the installation of the validation pack as well.
+Everything in this pack is for the creation of patterns. If you would like to evaluate rendered patterns for scannability, check out the companion project [Comfy QR Validation Nodes](https://gitlab.com/sofuego-comfy-nodes/comfy-qr-validation-nodes). Any workflow in the example that ends with "validated" assume the installation of the validation pack as well.
 
 This repository is managed publicly on [Gitlab](https://gitlab.com/sofuego-comfy-nodes/comfy-qr), but also mirrored on [Github](https://github.com/coreyryanhanson/comfy-qr). Please submit any [issues](https://gitlab.com/sofuego-comfy-nodes/comfy-qr/-/issues) or [pull requests](https://gitlab.com/sofuego-comfy-nodes/comfy-qr/-/merge_requests) to the gitlab repo.
 
@@ -75,7 +75,7 @@ A QR code fixed to specific output dimensions through image resampling.
 
 ### QR Code (Split)
 
-A version of the `QR Code` node that also outputs split layers for the function patterns and a mask for the function patterns.
+A version of the `QR Code` node that also outputs split layers for the finder patterns along with an accompanying mask.
 
 #### Inputs
 
@@ -106,4 +106,4 @@ A version of the `QR Code` node that also outputs split layers for the function 
 
 ## Future updates
 
-If the solution is clean enough and if it can definitively improve scanability, there may be additional plans for the seperation of alignment patterns (based on `module_size`, `border`, and `QR_VERSION`) for more advanced workflows.
+If the solution is clean enough and if it can definitively improve scannability, there may be additional plans for the seperation of alignment patterns (based on `module_size`, `border`, and `QR_VERSION`) for more advanced workflows.

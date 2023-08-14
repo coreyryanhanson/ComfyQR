@@ -196,10 +196,12 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
     def _generate_finder_pattern_ranges(self, module_size, border_size):
         outer = module_size * border_size
         inner = 7 * module_size + outer
+        # Alternate behavior is required to prevent bugs from 0 border_size.
+        far_outer = -outer if border_size else None
         return [
             (outer, inner, outer, inner),
-            (outer, inner, -inner, -outer),
-            (-inner, -outer, outer, inner)
+            (outer, inner, -inner, far_outer),
+            (-inner, far_outer, outer, inner)
         ]
 
     def _generate_finder_pattern_mask(self, pixel_size, module_size, border_size):

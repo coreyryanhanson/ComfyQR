@@ -127,10 +127,10 @@
         678,
         604
       ],
-      "size": [
-        315,
-        106
-      ],
+      "size": {
+        "0": 315,
+        "1": 106
+      },
       "flags": {},
       "order": 5,
       "mode": 0,
@@ -312,13 +312,52 @@
         "Node name for S&R": "KSampler"
       },
       "widgets_values": [
-        679629273700059,
+        483918444996335,
         "randomize",
         20,
         8,
         "euler",
         "normal",
         1
+      ]
+    },
+    {
+      "id": 8,
+      "type": "CLIPTextEncode",
+      "pos": [
+        656,
+        351
+      ],
+      "size": {
+        "0": 400,
+        "1": 200
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            23
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "worst quality"
       ]
     },
     {
@@ -371,55 +410,16 @@
         16,
         512,
         "#000000",
-        "#999999",
+        "#FFFFFF",
         "Medium",
         1
-      ]
-    },
-    {
-      "id": 8,
-      "type": "CLIPTextEncode",
-      "pos": [
-        656,
-        351
-      ],
-      "size": {
-        "0": 400,
-        "1": 200
-      },
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 3
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            23
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "worst quality"
       ]
     },
     {
       "id": 17,
       "type": "ControlNetApplyAdvanced",
       "pos": [
-        808,
+        804,
         796
       ],
       "size": {
@@ -475,7 +475,7 @@
         "Node name for S&R": "ControlNetApplyAdvanced"
       },
       "widgets_values": [
-        2.49999999999999,
+        1.6,
         0,
         1
       ]

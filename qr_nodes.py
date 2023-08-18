@@ -2,6 +2,7 @@ import numpy as np
 import qrcode
 from qrcode.compat.pil import Image
 import torch
+import torch.nn.functional as F
 
 
 class QRBase:
@@ -88,7 +89,7 @@ class QRByImageSize(QRBase):
         }
 
     RETURN_TYPES = ("IMAGE", "INT")
-    RETURN_NAMES = ("IMAGE", "QR_VERSION")
+    RETURN_NAMES = ("QR_CODE", "QR_VERSION")
 
     def _select_resampling_method(self, resampling_string):
         if resampling_string == "Nearest":
@@ -148,7 +149,7 @@ class QRByModuleSize(QRBase):
         }
 
     RETURN_TYPES = ("IMAGE", "INT", "INT")
-    RETURN_NAMES = ("IMAGE", "QR_VERSION", "IMAGE_SIZE")
+    RETURN_NAMES = ("QR_CODE", "QR_VERSION", "IMAGE_SIZE")
 
     def generate_qr(
             self,
@@ -191,7 +192,7 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
         }
 
     RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "MASK", "INT", "INT")
-    RETURN_NAMES = ("QR_FLATTENED", "MODULE_LAYER", "FINDER_LAYER", "FINDER_MASK", "QR_VERSION", "IMAGE_SIZE")
+    RETURN_NAMES = ("QR_CODE", "MODULE_LAYER", "FINDER_LAYER", "FINDER_MASK", "QR_VERSION", "IMAGE_SIZE")
 
     def _generate_finder_pattern_ranges(self, module_size, border_size):
         outer = module_size * border_size
@@ -254,10 +255,198 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
             )
 
 
+class QRErrorMasker:
+    def __init__(self):
+        self.module_size = None
+        self.canvas_shape = None
+        self.qr_bounds = None
+
+    FUNCTION = "find_qr_errors"
+    CATEGORY = "Comfy-QR"
+    RETURN_TYPES = ("MASK", "FLOAT", "FLOAT", "FLOAT")
+    RETURN_NAMES = ("QR_ERROR_MASK", "PERCENT_ERROR", "CORRELATION", "RMSE")
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "source_qr": ("IMAGE",),
+                "modified_qr": ("IMAGE",),
+                "module_size": ("INT", {"default": 16, "min": 1, "max": 64, "step": 1}),
+                "grayscale_method": (["mean",], {"default": "mean"}),
+                "aggregate_method": (["mean",], {"default": "mean"}),
+                "evaluate": (["full_qr", "module_pattern", "finder_pattern"], {"default": "module_pattern"}),
+                "error_difficulty": ("FLOAT", {"default": 0, "min": 0, "max": 1, "step": .01}),
+                "inverted_pattern": ("BOOLEAN", {"default": False}),
+            },
+        }
+
+    def _get_qr_bounds(self, tensor, invert):
+        module_color = 1.0 if invert else 0.0
+        module_pixels = (tensor == module_color)
+        indices = torch.nonzero(module_pixels, as_tuple=True)
+        # The viewer patterns will guarentee a module pixel in the upper left
+        # The bottom right does not have that guarentee so max is used.
+        return indices[0][0], indices[0].max() + 1, indices[1][0], indices[1].max() + 1
+
+    def _extract_pattern_from_bounds(self, tensor):
+        return tensor[self.qr_bounds[0]:self.qr_bounds[1], self.qr_bounds[2]:self.qr_bounds[3]]
+
+    def _trim_to_qr_area(self, source_qr, modified_qr, inverted_pattern):
+        self.qr_bounds = self._get_qr_bounds(source_qr, inverted_pattern)
+        self._check_bounds_and_module_size()
+        source_qr = self._extract_pattern_from_bounds(source_qr)
+        modified_qr = self._extract_pattern_from_bounds(modified_qr)
+        return source_qr, modified_qr
+
+    def _reshape_tensor_to_modules(self, tensor):
+        if len(tensor.shape) != 2:
+            raise RuntimeError("Module reshaping requires a 2 dimensional array.")
+        length = tensor.shape[0] // self.module_size
+        reshaped_tensor = tensor.view(length, self.module_size, length, self.module_size)
+        rehaped_tensor = reshaped_tensor.permute(0, 2, 1, 3).contiguous()
+        return rehaped_tensor.view(length, length, self.module_size ** 2)
+
+    def _check_bounds_and_module_size(self):
+        height = self.qr_bounds[1] - self.qr_bounds[0]
+        width = self.qr_bounds[3] - self.qr_bounds[2]
+        color_warning = "Make sure that qr_fill and back colors have exact #FFFFFFF and #000000 values (and that module color values do not occur outside the QR) and invert is set correctly."
+        if width != height:
+            raise RuntimeError(f"Source QR dimensions are {width} x {height}. They must be a perfect square. {color_warning}")
+        if width % self.module_size:
+            raise RuntimeError(f"QR width of {width} does not fit module_size of {self.module_size}. It must be perfectly divisible. {color_warning}")
+
+    def _squeeze_by_mean(self, tensor):
+        return torch.mean(tensor, dim=-1)
+
+    def _squeeze_to_modules(self, tensor, method):
+        tensor = self._reshape_tensor_to_modules(tensor)
+        if method == "mean":
+            return self._squeeze_by_mean(tensor)
+        raise RuntimeError("Module aggregation currently only supports the mean.")
+
+    def _reduce_to_modules(
+            self,
+            source_qr,
+            modified_qr,
+            module_size,
+            grayscale_method,
+            aggregate_method,
+            inverted_pattern
+            ):
+        if source_qr.shape != modified_qr.shape:
+            raise ValueError("Source and modified QR must have the same dimensions.")
+        self.module_size = module_size
+        self.canvas_shape = (source_qr.shape[1], source_qr.shape[2])
+        # Ignore batch dimension
+        source_qr, modified_qr = source_qr[0], modified_qr[0]
+        # Processed first for simplified indexing of QR bounds.
+        source_qr = self._squeeze_by_mean(source_qr)
+        source_qr, modified_qr = self._trim_to_qr_area(source_qr,
+                                                       modified_qr,
+                                                       inverted_pattern
+                                                       )
+        if grayscale_method == "mean":
+            modified_qr = self._squeeze_by_mean(modified_qr)
+        else:
+            raise ValueError("Currently only mean is supported for rgb to grayscale conversion.")
+        source_qr = self._squeeze_to_modules(source_qr, "mean")
+        modified_qr = self._squeeze_to_modules(modified_qr, aggregate_method)
+        return source_qr, modified_qr
+
+    def _create_finder_pattern_mask(self, width, inverted):
+        mask = np.zeros((width, width), dtype=bool)
+        # When borders are trimmed and QR code has module size of 1, results
+        #  are consistent.
+        finder_coords = [[0, 7, 0, 7], [0, 7, -7, None], [-7, None, 0, 7]]
+        for x_min, x_max, y_min, y_max in finder_coords:
+            mask[y_min:y_max, x_min:x_max] = True
+        return ~mask if inverted else mask
+
+    def _create_qr_mask(self, tensor, evaluate):
+        if evaluate == "module_pattern":
+            return self._create_finder_pattern_mask(tensor, True)
+        if evaluate == "finder_pattern":
+            return self._create_finder_pattern_mask(tensor, False)
+        return None
+
+    def _bin_tensor_to_threshold(self, tensor, contrast_difficulty):
+        tensor = tensor.clone()
+        threshold = contrast_difficulty / 2
+        # Since we are only interested in value matches and there is a clear
+        # stable dividing line of .5, bringing in the other array is
+        # unneccessary and the binning process can be simplified.
+        bin_condition = (tensor + threshold <= .5) & (tensor != .5)
+        tensor[bin_condition] = 0.0
+        bin_condition = (tensor - threshold >= .5) & (tensor != .5)
+        tensor[bin_condition] = 1.0
+        return tensor
+
+    def _replace_qr_to_canvas(self, tensor):
+        length = tensor.shape[0] * self.module_size
+        bounds = self.qr_bounds
+        tensor = F.interpolate(tensor.unsqueeze(0).unsqueeze(0), size=(length, length), mode='nearest')
+        canvas = torch.zeros(self.canvas_shape, dtype=torch.float32)
+        canvas[bounds[0]:bounds[1], bounds[2]:bounds[3]] = tensor.squeeze()
+        return canvas
+
+    def _compare_modules(
+            self,
+            source_qr,
+            modified_qr,
+            mask,
+            error_difficulty
+            ):
+        modified_qr = self._bin_tensor_to_threshold(modified_qr, error_difficulty)
+        error = source_qr != modified_qr
+        percent_error = error[mask].sum().item() / error[mask].numel()
+        if mask is not None:
+            error[~mask] = False
+        return self._replace_qr_to_canvas((error).to(torch.float32)), percent_error
+
+    def _qr_correlation(self, source_qr, modified_qr, mask):
+        source_qr = source_qr[mask].numpy().reshape((-1))
+        modified_qr = modified_qr[mask].numpy().reshape((-1))
+        return np.corrcoef(source_qr, modified_qr)[0, 1]
+
+    def _qr_rmse(self, source_qr, modified_qr, mask):
+        diff = source_qr[mask].numpy() - modified_qr[mask].numpy()
+        return np.sqrt((diff ** 2).mean())
+
+    def find_qr_errors(
+            self,
+            source_qr,
+            modified_qr,
+            module_size,
+            grayscale_method,
+            aggregate_method,
+            evaluate,
+            error_difficulty,
+            inverted_pattern,
+            ):
+        source_qr, modified_qr = self._reduce_to_modules(source_qr,
+                                                         modified_qr,
+                                                         module_size,
+                                                         grayscale_method,
+                                                         aggregate_method,
+                                                         inverted_pattern
+                                                         )
+        mask = self._create_qr_mask(source_qr.shape[0], evaluate)
+        error_mask, percent_error = self._compare_modules(source_qr,
+                                                          modified_qr,
+                                                          mask,
+                                                          error_difficulty
+                                                          )
+        correlation = self._qr_correlation(source_qr, modified_qr, mask)
+        rmse = self._qr_rmse(source_qr, modified_qr, mask)
+        return (error_mask, percent_error, correlation, rmse)
+
+
 NODE_CLASS_MAPPINGS = {
                        "comfy-qr-by-module-size": QRByModuleSize,
                        "comfy-qr-by-image-size": QRByImageSize,
                        "comfy-qr-by-module-split": QRByModuleSizeSplitFunctionPatterns,
+                       "comfy-qr-mask_errors": QRErrorMasker,
                        }
 
 
@@ -265,4 +454,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
                               "comfy-qr-by-module-size": "QR Code",
                               "comfy-qr-by-image-size": "QR Code (Conformed to Image Size)",
                               "comfy-qr-by-module-split": "QR Code (Split)",
+                              "comfy-qr-mask_errors": "Mask QR Errors",
                               }

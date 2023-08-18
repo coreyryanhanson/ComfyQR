@@ -1,6 +1,6 @@
 {
-  "last_node_id": 2,
-  "last_link_id": 1,
+  "last_node_id": 3,
+  "last_link_id": 2,
   "nodes": [
     {
       "id": 2,
@@ -20,7 +20,7 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 1
+          "link": 2
         }
       ],
       "properties": {},
@@ -29,11 +29,11 @@
       ]
     },
     {
-      "id": 1,
+      "id": 3,
       "type": "comfy-qr-by-image-size",
       "pos": [
-        429,
-        492
+        516,
+        479
       ],
       "size": {
         "0": 400,
@@ -44,10 +44,10 @@
       "mode": 0,
       "outputs": [
         {
-          "name": "IMAGE",
+          "name": "QR_CODE",
           "type": "IMAGE",
           "links": [
-            1
+            2
           ],
           "shape": 3,
           "slot_index": 0
@@ -65,7 +65,7 @@
       "widgets_values": [
         "Https",
         "gitlab.com/sofuego-comfy-nodes/comfy-qr",
-        768,
+        512,
         "00F",
         "FF0",
         "High",
@@ -76,8 +76,8 @@
   ],
   "links": [
     [
-      1,
-      1,
+      2,
+      3,
       0,
       2,
       0,

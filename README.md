@@ -2,7 +2,7 @@
 
 A set of ComfyUI nodes to dynamically create QR image layers for generative QR art without the hassle of leaving the webui.
 
-Everything in this pack is primarily focused on the creation of patterns. While the `Mask QR Errors` does some basic statistics on the differences bwtween pixels, a more definative node on determining scannability can be found in the companion project [Comfy QR Validation Nodes](https://gitlab.com/sofuego-comfy-nodes/ComfyQR-scanning-nodes) which uses additional dependencies for the reading of QRs.
+Everything in this pack is primarily focused on the creation of patterns. While the `Mask QR Errors` does some basic statistics on the differences bwtween pixels, a more definative node on determining scannability can be found in the companion project [ComfyQR-scanning-nodes](https://gitlab.com/sofuego-comfy-nodes/ComfyQR-scanning-nodes) which uses additional dependencies for the reading of QRs.
 
 This repository is managed publicly on [Gitlab](https://gitlab.com/sofuego-comfy-nodes/ComfyQR), but also mirrored on [Github](https://github.com/coreyryanhanson/ComfyQR). Please submit any [issues](https://gitlab.com/sofuego-comfy-nodes/ComfyQR/-/issues) or [pull requests](https://gitlab.com/sofuego-comfy-nodes/ComfyQR/-/merge_requests) to the gitlab repo.
 

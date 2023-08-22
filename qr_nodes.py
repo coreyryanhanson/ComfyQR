@@ -12,7 +12,7 @@ class QRBase:
         self.back = None
 
     FUNCTION = "generate_qr"
-    CATEGORY = "Comfy-QR"
+    CATEGORY = "ComfyQR"
 
     def _get_error_correction_constant(self, error_correction_string):
         if error_correction_string == "Low":
@@ -262,7 +262,7 @@ class QRErrorMasker:
         self.qr_bounds = None
 
     FUNCTION = "find_qr_errors"
-    CATEGORY = "Comfy-QR"
+    CATEGORY = "ComfyQR"
     RETURN_TYPES = ("MASK", "FLOAT", "FLOAT", "FLOAT")
     RETURN_NAMES = ("QR_ERROR_MASK", "PERCENT_ERROR", "CORRELATION", "RMSE")
 

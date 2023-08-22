@@ -2,9 +2,9 @@
 
 A set of ComfyUI nodes to dynamically create QR image layers for generative QR art without the hassle of leaving the webui.
 
-Everything in this pack is primarily focused on the creation of patterns. While the `Mask QR Errors` does some basic statistics on the differences bwtween pixels, a more definative node on determining scannability can be found in the companion project [Comfy QR Validation Nodes](https://gitlab.com/sofuego-comfy-nodes/comfy-qr-validation-nodes) which uses additional dependencies for the reading of QRs.
+Everything in this pack is primarily focused on the creation of patterns. While the `Mask QR Errors` does some basic statistics on the differences bwtween pixels, a more definative node on determining scannability can be found in the companion project [Comfy QR Validation Nodes](https://gitlab.com/sofuego-comfy-nodes/ComfyQR-scanning-nodes) which uses additional dependencies for the reading of QRs.
 
-This repository is managed publicly on [Gitlab](https://gitlab.com/sofuego-comfy-nodes/comfy-qr), but also mirrored on [Github](https://github.com/coreyryanhanson/comfy-qr). Please submit any [issues](https://gitlab.com/sofuego-comfy-nodes/comfy-qr/-/issues) or [pull requests](https://gitlab.com/sofuego-comfy-nodes/comfy-qr/-/merge_requests) to the gitlab repo.
+This repository is managed publicly on [Gitlab](https://gitlab.com/sofuego-comfy-nodes/ComfyQR), but also mirrored on [Github](https://github.com/coreyryanhanson/ComfyQR). Please submit any [issues](https://gitlab.com/sofuego-comfy-nodes/ComfyQR/-/issues) or [pull requests](https://gitlab.com/sofuego-comfy-nodes/ComfyQR/-/merge_requests) to the gitlab repo.
 
 ![QR code with repo link](img/badgers_levels_adjusted.png)
 
@@ -125,7 +125,7 @@ And then aggressively increasing the strength of the ControlNet on only the erro
 
 ![Fixed Scan Example](example_generations/unscannable_00001_fixed_.png)
 
-Any workflow in the example that ends with "validated" (and a few image examples) assume the installation of the [validation pack](https://gitlab.com/sofuego-comfy-nodes/comfy-qr-validation-nodes) as well.
+Any workflow in the example that ends with "validated" (and a few image examples) assume the installation of the [scanning pack](https://gitlab.com/sofuego-comfy-nodes/ComfyQR-scanning-nodes) as well.
 
 ## Future updates
 

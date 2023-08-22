@@ -1,4 +1,4 @@
-# comfy-qr
+# ComfyQR
 
 A set of ComfyUI nodes to dynamically create QR image layers for generative QR art without the hassle of leaving the webui.
 

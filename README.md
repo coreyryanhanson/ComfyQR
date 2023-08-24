@@ -99,6 +99,7 @@ A node that that will analyze the differences between a modified QR and create a
 * `module_size` - The size in pixels of each QR module (the individual blocks that make up a qr code) in the provided images.
 * `grayscale_method` - How to convert the RGB color channels to a single grayscale value.
   * `mean` - A simple average of the RGB values.
+  * `luminance` - Converts colors to grayscale using a [more advanced formula](https://en.wikipedia.org/wiki/Grayscale#Colorimetric_(perceptual_luminance-preserving)_conversion_to_grayscale) to better match percieved brightness.
 * `aggregate_method` - How to aggregate the many pixels that make up a QR module into a single value.
   * `mean` - Within each module a simple average is taken of all constituent pixels.
 * `evaluate` - Which part of the QR to examine.
@@ -107,6 +108,7 @@ A node that that will analyze the differences between a modified QR and create a
   * `finder_pattern` - Ignores the modules while examining only the 3 finder patterns at the corners of the QR.
 * `error_difficulty` - It is possible that while using the same reader a QR code could be easily scannable on one monitor, but not on another. The way the colors are displayed can have a major effect on unsability. By increasing this threshold, you are simulating inability to distinguish midrange pixels for both the `PERCENT_ERROR` and `QR_ERROR_MASK` outputs. It ranges from 0 to 1 where 0 only automatically fails perfect grays while 1 accepts only exactly matched modules that are perfectly black or white.
 * `inverted_pattern` - If set to `True` this assumes that the QR code has inverted colors (a black background with white modules.)
+* `gamma` - If using the `grayscale` method based on `luminance`, this will influence the formula by appending the gamma expansion and compression formulas before and after the color conversion. A gamma of 2.2 will use the [formula specific to srgb](qr_nodes.py#0.04045), while other gamma values will simply use the gamma amount as an exponent.
 
 #### Outputs
 

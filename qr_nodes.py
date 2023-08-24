@@ -273,11 +273,12 @@ class QRErrorMasker:
                 "source_qr": ("IMAGE",),
                 "modified_qr": ("IMAGE",),
                 "module_size": ("INT", {"default": 16, "min": 1, "max": 64, "step": 1}),
-                "grayscale_method": (["mean",], {"default": "mean"}),
+                "grayscale_method": (["mean", "luminance"], {"default": "luminance"}),
                 "aggregate_method": (["mean",], {"default": "mean"}),
                 "evaluate": (["full_qr", "module_pattern", "finder_pattern"], {"default": "module_pattern"}),
                 "error_difficulty": ("FLOAT", {"default": 0, "min": 0, "max": 1, "step": .01}),
                 "inverted_pattern": ("BOOLEAN", {"default": False}),
+                "gamma": ("FLOAT", {"default": 2.2, "min": .1, "max": 2.8, "step": .1}),
             },
         }
 
@@ -319,6 +320,28 @@ class QRErrorMasker:
     def _squeeze_by_mean(self, tensor):
         return torch.mean(tensor, dim=-1)
 
+    def _gamma_expansion(self, tensor, gamma):
+        if gamma == 1:
+            return tensor
+        if gamma == 2.2:
+            return torch.where(tensor <= 0.04045, tensor / 12.92, ((tensor + 0.055) / 1.055) ** 2.4)
+        return tensor ** gamma
+
+    def _gamma_compression(self, tensor, gamma):
+        if gamma == 1:
+            return tensor
+        if gamma == 2.2:
+            return torch.where(tensor <= .0031308, tensor * 12.92, 1.055 * tensor ** (1/2.4) - 0.055)
+        return tensor ** (1/gamma)
+
+    def _grayscale_by_luminance(self, tensor, gamma):
+        weights = torch.tensor([0.2125, 0.7154, 0.0721], dtype=torch.float32)
+        tensor = self._gamma_expansion(tensor, gamma)
+        tensor = tensor @ weights
+        if gamma != 1:
+            tensor = tensor ** gamma
+        return self._gamma_compression(tensor, gamma)
+
     def _squeeze_to_modules(self, tensor, method):
         tensor = self._reshape_tensor_to_modules(tensor)
         if method == "mean":
@@ -332,7 +355,8 @@ class QRErrorMasker:
             module_size,
             grayscale_method,
             aggregate_method,
-            inverted_pattern
+            inverted_pattern,
+            gamma
             ):
         if source_qr.shape != modified_qr.shape:
             raise ValueError("Source and modified QR must have the same dimensions.")
@@ -348,6 +372,8 @@ class QRErrorMasker:
                                                        )
         if grayscale_method == "mean":
             modified_qr = self._squeeze_by_mean(modified_qr)
+        elif grayscale_method == "luminance":
+            modified_qr = self._grayscale_by_luminance(modified_qr, gamma)
         else:
             raise ValueError("Currently only mean is supported for rgb to grayscale conversion.")
         source_qr = self._squeeze_to_modules(source_qr, "mean")
@@ -423,13 +449,15 @@ class QRErrorMasker:
             evaluate,
             error_difficulty,
             inverted_pattern,
+            gamma,
             ):
         source_qr, modified_qr = self._reduce_to_modules(source_qr,
                                                          modified_qr,
                                                          module_size,
                                                          grayscale_method,
                                                          aggregate_method,
-                                                         inverted_pattern
+                                                         inverted_pattern,
+                                                         gamma
                                                          )
         mask = self._create_qr_mask(source_qr.shape[0], evaluate)
         error_mask, percent_error = self._compare_modules(source_qr,

@@ -1,151 +1,7 @@
 {
-  "last_node_id": 50,
-  "last_link_id": 111,
+  "last_node_id": 51,
+  "last_link_id": 114,
   "nodes": [
-    {
-      "id": 12,
-      "type": "ControlNetLoader",
-      "pos": [
-        -692.0780999999998,
-        618.3673000000019
-      ],
-      "size": {
-        "0": 315,
-        "1": 58
-      },
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "CONTROL_NET",
-          "type": "CONTROL_NET",
-          "links": [
-            13
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ControlNetLoader"
-      },
-      "widgets_values": [
-        "control_v1p_sd15_qrcode_monster_v2.safetensors"
-      ]
-    },
-    {
-      "id": 6,
-      "type": "ImageCompositeMasked",
-      "pos": [
-        -332.0780999999991,
-        -91.63270000000001
-      ],
-      "size": [
-        315,
-        146
-      ],
-      "flags": {},
-      "order": 17,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "destination",
-          "type": "IMAGE",
-          "link": 3
-        },
-        {
-          "name": "source",
-          "type": "IMAGE",
-          "link": 2
-        },
-        {
-          "name": "mask",
-          "type": "MASK",
-          "link": null
-        },
-        {
-          "name": "x",
-          "type": "INT",
-          "link": 107,
-          "widget": {
-            "name": "x",
-            "config": [
-              "INT",
-              {
-                "default": 0,
-                "min": 0,
-                "max": 8192,
-                "step": 1
-              }
-            ]
-          }
-        },
-        {
-          "name": "y",
-          "type": "INT",
-          "link": 108,
-          "widget": {
-            "name": "y",
-            "config": [
-              "INT",
-              {
-                "default": 0,
-                "min": 0,
-                "max": 8192,
-                "step": 1
-              }
-            ]
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            4,
-            12,
-            25
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ImageCompositeMasked"
-      },
-      "widgets_values": [
-        16,
-        16,
-        false
-      ]
-    },
-    {
-      "id": 7,
-      "type": "PreviewImage",
-      "pos": [
-        877.9219000000076,
-        18.367300000000753
-      ],
-      "size": {
-        "0": 210,
-        "1": 246
-      },
-      "flags": {},
-      "order": 24,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 7
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
     {
       "id": 19,
       "type": "PreviewImage",
@@ -169,6 +25,42 @@
       ],
       "properties": {
         "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 20,
+      "type": "MaskToImage",
+      "pos": [
+        1637.9218999999982,
+        148.3672999999998
+      ],
+      "size": {
+        "0": 210,
+        "1": 26
+      },
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 113
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            27
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskToImage"
       }
     },
     {
@@ -263,7 +155,7 @@
         "1": 98
       },
       "flags": {},
-      "order": 1,
+      "order": 0,
       "mode": 0,
       "outputs": [
         {
@@ -315,7 +207,7 @@
         "1": 82
       },
       "flags": {},
-      "order": 2,
+      "order": 1,
       "mode": 0,
       "outputs": [
         {
@@ -359,7 +251,7 @@
         "1": 76
       },
       "flags": {},
-      "order": 3,
+      "order": 2,
       "mode": 0,
       "outputs": [
         {
@@ -478,7 +370,7 @@
         "Node name for S&R": "KSampler"
       },
       "widgets_values": [
-        927301192808348,
+        364823902739253,
         "randomize",
         25,
         8,
@@ -530,10 +422,10 @@
         -970,
         294
       ],
-      "size": [
-        315,
-        106
-      ],
+      "size": {
+        "0": 315,
+        "1": 106
+      },
       "flags": {},
       "order": 13,
       "mode": 0,
@@ -892,73 +784,6 @@
       }
     },
     {
-      "id": 18,
-      "type": "comfy-qr-quantify-match",
-      "pos": [
-        1253,
-        129
-      ],
-      "size": {
-        "0": 317.4000244140625,
-        "1": 238
-      },
-      "flags": {},
-      "order": 27,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "source_qr",
-          "type": "IMAGE",
-          "link": 25
-        },
-        {
-          "name": "modified_qr",
-          "type": "IMAGE",
-          "link": 24
-        }
-      ],
-      "outputs": [
-        {
-          "name": "PERCENT_ERROR",
-          "type": "FLOAT",
-          "links": null,
-          "shape": 3
-        },
-        {
-          "name": "CORRELATION",
-          "type": "FLOAT",
-          "links": null,
-          "shape": 3
-        },
-        {
-          "name": "RMSE",
-          "type": "FLOAT",
-          "links": null,
-          "shape": 3
-        },
-        {
-          "name": "QR_ERROR_MASK",
-          "type": "MASK",
-          "links": [
-            26
-          ],
-          "shape": 3,
-          "slot_index": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "comfy-qr-quantify-match"
-      },
-      "widgets_values": [
-        16,
-        "mean",
-        "mean",
-        "module_pattern",
-        0,
-        "False"
-      ]
-    },
-    {
       "id": 3,
       "type": "comfy-qr-quantify-match",
       "pos": [
@@ -1022,7 +847,7 @@
         "mean",
         "module_pattern",
         0.5,
-        "False"
+        false
       ]
     },
     {
@@ -1037,7 +862,7 @@
         "1": 314.0000305175781
       },
       "flags": {},
-      "order": 4,
+      "order": 3,
       "mode": 0,
       "outputs": [
         {
@@ -1077,7 +902,7 @@
         "1": 82
       },
       "flags": {},
-      "order": 5,
+      "order": 4,
       "mode": 0,
       "outputs": [
         {
@@ -1121,7 +946,7 @@
         "1": 82
       },
       "flags": {},
-      "order": 6,
+      "order": 5,
       "mode": 0,
       "outputs": [
         {
@@ -1165,7 +990,7 @@
         "1": 82
       },
       "flags": {},
-      "order": 7,
+      "order": 6,
       "mode": 0,
       "outputs": [
         {
@@ -1209,7 +1034,7 @@
         "1": 82
       },
       "flags": {},
-      "order": 8,
+      "order": 7,
       "mode": 0,
       "outputs": [
         {
@@ -1248,10 +1073,10 @@
         -994,
         455
       ],
-      "size": [
-        315,
-        106
-      ],
+      "size": {
+        "0": 315,
+        "1": 106
+      },
       "flags": {},
       "order": 14,
       "mode": 0,
@@ -1319,10 +1144,10 @@
         -635,
         413
       ],
-      "size": [
-        315,
-        126
-      ],
+      "size": {
+        "0": 315,
+        "1": 126
+      },
       "flags": {},
       "order": 16,
       "mode": 0,
@@ -1434,24 +1259,93 @@
       ]
     },
     {
-      "id": 20,
-      "type": "MaskToImage",
+      "id": 7,
+      "type": "PreviewImage",
       "pos": [
-        1644,
-        142
+        881,
+        17
       ],
       "size": {
         "0": 210,
-        "1": 26
+        "1": 246
       },
       "flags": {},
-      "order": 29,
+      "order": 24,
       "mode": 0,
       "inputs": [
         {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 7
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 6,
+      "type": "ImageCompositeMasked",
+      "pos": [
+        -332.0780999999991,
+        -91.63270000000001
+      ],
+      "size": {
+        "0": 315,
+        "1": 146
+      },
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "destination",
+          "type": "IMAGE",
+          "link": 3
+        },
+        {
+          "name": "source",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
           "name": "mask",
           "type": "MASK",
-          "link": 26
+          "link": null
+        },
+        {
+          "name": "x",
+          "type": "INT",
+          "link": 107,
+          "widget": {
+            "name": "x",
+            "config": [
+              "INT",
+              {
+                "default": 0,
+                "min": 0,
+                "max": 8192,
+                "step": 1
+              }
+            ]
+          }
+        },
+        {
+          "name": "y",
+          "type": "INT",
+          "link": 108,
+          "widget": {
+            "name": "y",
+            "config": [
+              "INT",
+              {
+                "default": 0,
+                "min": 0,
+                "max": 8192,
+                "step": 1
+              }
+            ]
+          }
         }
       ],
       "outputs": [
@@ -1459,22 +1353,29 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            27
+            4,
+            12,
+            111
           ],
           "shape": 3,
           "slot_index": 0
         }
       ],
       "properties": {
-        "Node name for S&R": "MaskToImage"
-      }
+        "Node name for S&R": "ImageCompositeMasked"
+      },
+      "widgets_values": [
+        16,
+        16,
+        false
+      ]
     },
     {
       "id": 17,
       "type": "VAEDecode",
       "pos": [
         1039,
-        475
+        464
       ],
       "size": {
         "0": 210,
@@ -1500,8 +1401,8 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            24,
-            111
+            112,
+            114
           ],
           "shape": 3,
           "slot_index": 0
@@ -1512,11 +1413,111 @@
       }
     },
     {
+      "id": 51,
+      "type": "comfy-qr-mask_errors",
+      "pos": [
+        1194,
+        15
+      ],
+      "size": {
+        "0": 317.4000244140625,
+        "1": 262
+      },
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source_qr",
+          "type": "IMAGE",
+          "link": 111
+        },
+        {
+          "name": "modified_qr",
+          "type": "IMAGE",
+          "link": 112
+        }
+      ],
+      "outputs": [
+        {
+          "name": "QR_ERROR_MASK",
+          "type": "MASK",
+          "links": [
+            113
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "PERCENT_ERROR",
+          "type": "FLOAT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "CORRELATION",
+          "type": "FLOAT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "RMSE",
+          "type": "FLOAT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "comfy-qr-mask_errors"
+      },
+      "widgets_values": [
+        16,
+        "luminance",
+        "mean",
+        "module_pattern",
+        0,
+        false,
+        2.2
+      ]
+    },
+    {
+      "id": 12,
+      "type": "ControlNetLoader",
+      "pos": [
+        -692.0780999999998,
+        618.3673000000019
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "CONTROL_NET",
+          "type": "CONTROL_NET",
+          "links": [
+            13
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ControlNetLoader"
+      },
+      "widgets_values": [
+        "1.5/control_v1p_sd15_qrcode_monster_v2.safetensors"
+      ]
+    },
+    {
       "id": 23,
       "type": "SaveImage",
       "pos": [
-        1388,
-        501
+        1473,
+        510
       ],
       "size": {
         "0": 315,
@@ -1529,7 +1530,7 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 111
+          "link": 114
         }
       ],
       "properties": {},
@@ -1658,30 +1659,6 @@
       17,
       1,
       "VAE"
-    ],
-    [
-      24,
-      17,
-      0,
-      18,
-      1,
-      "IMAGE"
-    ],
-    [
-      25,
-      6,
-      0,
-      18,
-      0,
-      "IMAGE"
-    ],
-    [
-      26,
-      18,
-      3,
-      20,
-      0,
-      "MASK"
     ],
     [
       27,
@@ -1877,6 +1854,30 @@
     ],
     [
       111,
+      6,
+      0,
+      51,
+      0,
+      "IMAGE"
+    ],
+    [
+      112,
+      17,
+      0,
+      51,
+      1,
+      "IMAGE"
+    ],
+    [
+      113,
+      51,
+      0,
+      20,
+      0,
+      "MASK"
+    ],
+    [
+      114,
       17,
       0,
       23,

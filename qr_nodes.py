@@ -381,7 +381,7 @@ class QRErrorMasker:
         return source_qr, modified_qr
 
     def _create_finder_pattern_mask(self, width, inverted):
-        mask = np.zeros((width, width), dtype=bool)
+        mask = torch.zeros((width, width), dtype=torch.bool)
         # When borders are trimmed and QR code has module size of 1, results
         #  are consistent.
         finder_coords = [[0, 7, 0, 7], [0, 7, -7, None], [-7, None, 0, 7]]

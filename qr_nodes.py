@@ -219,7 +219,7 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
 
     def _mask_to_tensor(self, mask):
         out_image = mask.astype(np.float32)
-        return torch.from_numpy(out_image)
+        return torch.from_numpy(out_image).unsqueeze(0)
 
     def generate_qr(
             self,
@@ -265,6 +265,7 @@ class QRErrorMasker:
     CATEGORY = "ComfyQR"
     RETURN_TYPES = ("MASK", "FLOAT", "FLOAT", "FLOAT")
     RETURN_NAMES = ("QR_ERROR_MASK", "PERCENT_ERROR", "CORRELATION", "RMSE")
+    OUTPUT_IS_LIST = (False, True, True, True)
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -317,6 +318,10 @@ class QRErrorMasker:
         if width % self.module_size:
             raise RuntimeError(f"QR width of {width} does not fit module_size of {self.module_size}. It must be perfectly divisible. {color_warning}")
 
+    def _check_equal_shape(self, source_qr, modified_qr):
+        if source_qr.shape != modified_qr.shape:
+            raise ValueError("Source and modified QR must have the same batch size and dimensions.")
+
     def _squeeze_by_mean(self, tensor):
         return torch.mean(tensor, dim=-1)
 
@@ -358,12 +363,8 @@ class QRErrorMasker:
             inverted_pattern,
             gamma
             ):
-        if source_qr.shape != modified_qr.shape:
-            raise ValueError("Source and modified QR must have the same dimensions.")
         self.module_size = module_size
-        self.canvas_shape = (source_qr.shape[1], source_qr.shape[2])
-        # Ignore batch dimension
-        source_qr, modified_qr = source_qr[0], modified_qr[0]
+        self.canvas_shape = (source_qr.shape[0], source_qr.shape[1])
         # Processed first for simplified indexing of QR bounds.
         source_qr = self._squeeze_by_mean(source_qr)
         source_qr, modified_qr = self._trim_to_qr_area(source_qr,
@@ -451,23 +452,32 @@ class QRErrorMasker:
             inverted_pattern,
             gamma,
             ):
-        source_qr, modified_qr = self._reduce_to_modules(source_qr,
-                                                         modified_qr,
-                                                         module_size,
-                                                         grayscale_method,
-                                                         aggregate_method,
-                                                         inverted_pattern,
-                                                         gamma
-                                                         )
-        mask = self._create_qr_mask(source_qr.shape[0], evaluate)
-        error_mask, percent_error = self._compare_modules(source_qr,
-                                                          modified_qr,
-                                                          mask,
-                                                          error_difficulty
-                                                          )
-        correlation = self._qr_correlation(source_qr, modified_qr, mask)
-        rmse = self._qr_rmse(source_qr, modified_qr, mask)
-        return (error_mask, percent_error, correlation, rmse)
+        self._check_equal_shape(source_qr, modified_qr)
+        error_masks, error_percents, correlations, rmses = [], [], [], []
+        for i in range(source_qr.shape[0]):
+            qr_s, qr_m = source_qr[i], modified_qr[i]
+            qr_s, qr_m = self._reduce_to_modules(qr_s,
+                                                 qr_m,
+                                                 module_size,
+                                                 grayscale_method,
+                                                 aggregate_method,
+                                                 inverted_pattern,
+                                                 gamma
+                                                 )
+            mask = self._create_qr_mask(qr_s.shape[0], evaluate)
+            error_mask, percent_error = self._compare_modules(qr_s,
+                                                              qr_m,
+                                                              mask,
+                                                              error_difficulty
+                                                              )
+            correlation = self._qr_correlation(qr_s, qr_m, mask)
+            rmse = self._qr_rmse(qr_s, qr_m, mask)
+            error_masks.append(error_mask)
+            error_percents.append(percent_error)
+            correlations.append(correlation)
+            rmses.append(rmse)
+        error_masks = torch.stack(error_masks, dim=0)
+        return (error_masks, error_percents, correlations, rmses)
 
 
 NODE_CLASS_MAPPINGS = {

@@ -52,6 +52,21 @@ class QRBase:
     def _validate_qr_size(self, size, max_size):
         if size > max_size:
             raise RuntimeError(f"QR dimensions of {size} exceed max size of {max_size}.")
+        
+    def _select_module_drawer(self, module_drawer_string):
+        if module_drawer_string == "Square":
+            return SquareModuleDrawer()
+        if module_drawer_string == "Gapped square":
+            return GappedSquareModuleDrawer()
+        if module_drawer_string == "Circle":
+            return CircleModuleDrawer()
+        if module_drawer_string == "Rounded":
+            return RoundedModuleDrawer()
+        if module_drawer_string == "Vertical bars":
+            return VerticalBarsDrawer()
+        if module_drawer_string == "Horizontal bars":
+            return HorizontalBarsDrawer()
+        raise ValueError(f"Module drawing method of {module_drawer_string} not supported")
 
     def update_text(self, protocol, text):
         """This function takes input from a text box and a chosen internet
@@ -109,21 +124,6 @@ class QRByImageSize(QRBase):
             return Image.HAMMING
         raise ValueError(f"Resampling method of {resampling_string} not supported")
 
-    def _select_module_drawer(self, module_drawer_string):
-        if module_drawer_string == "Square":
-            return SquareModuleDrawer()
-        if module_drawer_string == "Gapped square":
-            return GappedSquareModuleDrawer()
-        if module_drawer_string == "Circle":
-            return CircleModuleDrawer()
-        if module_drawer_string == "Rounded":
-            return RoundedModuleDrawer()
-        if module_drawer_string == "Vertical bars":
-            return VerticalBarsDrawer()
-        if module_drawer_string == "Horizontal bars":
-            return HorizontalBarsDrawer()
-        raise ValueError(f"Module drawing method of {module_drawer_string} not supported")
-
     def generate_qr(
             self,
             protocol,
@@ -170,23 +170,7 @@ class QRByModuleSize(QRBase):
         }
 
     RETURN_TYPES = ("IMAGE", "INT", "INT")
-    RETURN_NAMES = ("QR_CODE", "QR_VERSION", "IMAGE_SIZE")
-    
-    def _select_module_drawer(self, module_drawer_string):
-        if module_drawer_string == "Square":
-            return SquareModuleDrawer()
-        if module_drawer_string == "Gapped square":
-            return GappedSquareModuleDrawer()
-        if module_drawer_string == "Circle":
-            return CircleModuleDrawer()
-        if module_drawer_string == "Rounded":
-            return RoundedModuleDrawer()
-        if module_drawer_string == "Vertical bars":
-            return VerticalBarsDrawer()
-        if module_drawer_string == "Horizontal bars":
-            return HorizontalBarsDrawer()
-        raise ValueError(f"Module drawing method of {module_drawer_string} not supported")
-
+    RETURN_NAMES = ("QR_CODE", "QR_VERSION", "IMAGE_SIZE") 
 
     def generate_qr(
             self,
@@ -233,22 +217,6 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
 
     RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "MASK", "INT", "INT")
     RETURN_NAMES = ("QR_CODE", "MODULE_LAYER", "FINDER_LAYER", "FINDER_MASK", "QR_VERSION", "IMAGE_SIZE")
-    
-    def _select_module_drawer(self, module_drawer_string):
-        if module_drawer_string == "Square":
-            return SquareModuleDrawer()
-        if module_drawer_string == "Gapped square":
-            return GappedSquareModuleDrawer()
-        if module_drawer_string == "Circle":
-            return CircleModuleDrawer()
-        if module_drawer_string == "Rounded":
-            return RoundedModuleDrawer()
-        if module_drawer_string == "Vertical bars":
-            return VerticalBarsDrawer()
-        if module_drawer_string == "Horizontal bars":
-            return HorizontalBarsDrawer()
-        raise ValueError(f"Module drawing method of {module_drawer_string} not supported")
-
 
     def _generate_finder_pattern_ranges(self, module_size, border_size):
         outer = module_size * border_size

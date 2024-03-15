@@ -1,5 +1,7 @@
 import numpy as np
 import qrcode
+from qrcode.image.styles.moduledrawers import SquareModuleDrawer, GappedSquareModuleDrawer, CircleModuleDrawer, RoundedModuleDrawer, VerticalBarsDrawer, HorizontalBarsDrawer
+from qrcode.image.styledpil import StyledPilImage
 from qrcode.compat.pil import Image
 import torch
 import torch.nn.functional as F
@@ -27,11 +29,11 @@ class QRBase:
         out_image = np.array(img, dtype=np.uint8).astype(np.float32) / 255
         return torch.from_numpy(out_image).unsqueeze(0)
 
-    def _make_qr(self, qr, fill_hexcolor, back_hexcolor):
+    def _make_qr(self, qr, fill_hexcolor, back_hexcolor, module_drawer):
         self.fill = self._parse_hexcolor_string(fill_hexcolor, "fill_hexcolor")
         self.back = self._parse_hexcolor_string(back_hexcolor, "back_hexcolor")
         qr.make(fit=True)
-        return qr.make_image(fill_color=self.fill, back_color=self.back)
+        return qr.make_image(image_factory=StyledPilImage, fill_color=self.fill, back_color=self.back, module_drawer=module_drawer)
 
     def _parse_hexcolor_string(self, s, parameter):
         if s.startswith("#"):
@@ -85,6 +87,7 @@ class QRByImageSize(QRBase):
                 "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
                 "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
                 "resampling": (["Bicubic", "Bilinear", "Box", "Hamming", "Lanczos", "Nearest"], {"default": "Nearest"}),
+                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Rounded"})
             },
         }
 
@@ -106,6 +109,21 @@ class QRByImageSize(QRBase):
             return Image.HAMMING
         raise ValueError(f"Resampling method of {resampling_string} not supported")
 
+    def _select_module_drawer(self, module_drawer_string):
+        if module_drawer_string == "Square":
+            return SquareModuleDrawer()
+        if module_drawer_string == "Gapped square":
+            return GappedSquareModuleDrawer()
+        if module_drawer_string == "Circle":
+            return CircleModuleDrawer()
+        if module_drawer_string == "Rounded":
+            return RoundedModuleDrawer()
+        if module_drawer_string == "Vertical bars":
+            return VerticalBarsDrawer()
+        if module_drawer_string == "Horizontal bars":
+            return HorizontalBarsDrawer()
+        raise ValueError(f"Module drawing method of {module_drawer_string} not supported")
+
     def generate_qr(
             self,
             protocol,
@@ -115,9 +133,11 @@ class QRByImageSize(QRBase):
             back_hexcolor,
             error_correction,
             border,
-            resampling
+            resampling,
+            module_drawer
             ):
         resampling_method = self._select_resampling_method(resampling)
+        module_drawing_method = self._select_module_drawer(module_drawer)
         error_level = self._get_error_correction_constant(error_correction)
         self.update_text(protocol, text)
         qr = qrcode.QRCode(
@@ -125,7 +145,7 @@ class QRByImageSize(QRBase):
                 box_size=1,
                 border=border)
         qr.add_data(self.text)
-        img = self._make_qr(qr, fill_hexcolor, back_hexcolor)
+        img = self._make_qr(qr, fill_hexcolor, back_hexcolor, module_drawing_method)
         self._validate_qr_size(img.pixel_size, image_size)
         img = img.resize((image_size, image_size), resample=resampling_method)
         return (self._img_to_tensor(img), qr.version)
@@ -145,11 +165,28 @@ class QRByModuleSize(QRBase):
                 "back_hexcolor": ("STRING", {"multiline": False, "default": "#FFFFFF"}),
                 "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
                 "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
+                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Rounded"})
             },
         }
 
     RETURN_TYPES = ("IMAGE", "INT", "INT")
     RETURN_NAMES = ("QR_CODE", "QR_VERSION", "IMAGE_SIZE")
+    
+    def _select_module_drawer(self, module_drawer_string):
+        if module_drawer_string == "Square":
+            return SquareModuleDrawer()
+        if module_drawer_string == "Gapped square":
+            return GappedSquareModuleDrawer()
+        if module_drawer_string == "Circle":
+            return CircleModuleDrawer()
+        if module_drawer_string == "Rounded":
+            return RoundedModuleDrawer()
+        if module_drawer_string == "Vertical bars":
+            return VerticalBarsDrawer()
+        if module_drawer_string == "Horizontal bars":
+            return HorizontalBarsDrawer()
+        raise ValueError(f"Module drawing method of {module_drawer_string} not supported")
+
 
     def generate_qr(
             self,
@@ -160,7 +197,8 @@ class QRByModuleSize(QRBase):
             fill_hexcolor,
             back_hexcolor,
             error_correction,
-            border
+            border,
+            module_drawer
             ):
         self.update_text(protocol, text)
         error_level = self._get_error_correction_constant(error_correction)
@@ -169,7 +207,8 @@ class QRByModuleSize(QRBase):
                 box_size=module_size,
                 border=border)
         qr.add_data(self.text)
-        img = self._make_qr(qr, fill_hexcolor, back_hexcolor)
+        module_drawing_method = self._select_module_drawer(module_drawer)
+        img = self._make_qr(qr, fill_hexcolor, back_hexcolor, module_drawing_method)
         self._validate_qr_size(img.pixel_size, max_image_size)
         return (self._img_to_tensor(img), qr.version, img.pixel_size)
 
@@ -188,11 +227,28 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
                 "back_hexcolor": ("STRING", {"multiline": False, "default": "#FFFFFF"}),
                 "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
                 "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
+                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Rounded"})
             },
         }
 
     RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "MASK", "INT", "INT")
     RETURN_NAMES = ("QR_CODE", "MODULE_LAYER", "FINDER_LAYER", "FINDER_MASK", "QR_VERSION", "IMAGE_SIZE")
+    
+    def _select_module_drawer(self, module_drawer_string):
+        if module_drawer_string == "Square":
+            return SquareModuleDrawer()
+        if module_drawer_string == "Gapped square":
+            return GappedSquareModuleDrawer()
+        if module_drawer_string == "Circle":
+            return CircleModuleDrawer()
+        if module_drawer_string == "Rounded":
+            return RoundedModuleDrawer()
+        if module_drawer_string == "Vertical bars":
+            return VerticalBarsDrawer()
+        if module_drawer_string == "Horizontal bars":
+            return HorizontalBarsDrawer()
+        raise ValueError(f"Module drawing method of {module_drawer_string} not supported")
+
 
     def _generate_finder_pattern_ranges(self, module_size, border_size):
         outer = module_size * border_size
@@ -230,7 +286,8 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
             fill_hexcolor,
             back_hexcolor,
             error_correction,
-            border
+            border,
+            module_drawer
             ):
         self.update_text(protocol, text)
         error_level = self._get_error_correction_constant(error_correction)
@@ -239,7 +296,8 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
                 box_size=module_size,
                 border=border)
         qr.add_data(self.text)
-        img = self._make_qr(qr, fill_hexcolor, back_hexcolor)
+        module_drawing_method = self._select_module_drawer(module_drawer)
+        img = self._make_qr(qr, fill_hexcolor, back_hexcolor, module_drawing_method)
         pixel_size = img.pixel_size
         self._validate_qr_size(pixel_size, max_image_size)
         mask = self._generate_finder_pattern_mask(pixel_size, module_size, border)

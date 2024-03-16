@@ -102,7 +102,7 @@ class QRByImageSize(QRBase):
                 "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
                 "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
                 "resampling": (["Bicubic", "Bilinear", "Box", "Hamming", "Lanczos", "Nearest"], {"default": "Nearest"}),
-                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Rounded"})
+                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Square"})
             },
         }
 
@@ -142,11 +142,10 @@ class QRByImageSize(QRBase):
         self.update_text(protocol, text)
         qr = qrcode.QRCode(
                 error_correction=error_level,
-                box_size=1,
+                box_size=16,
                 border=border)
         qr.add_data(self.text)
         img = self._make_qr(qr, fill_hexcolor, back_hexcolor, module_drawing_method)
-        self._validate_qr_size(img.pixel_size, image_size)
         img = img.resize((image_size, image_size), resample=resampling_method)
         return (self._img_to_tensor(img), qr.version)
 
@@ -165,7 +164,7 @@ class QRByModuleSize(QRBase):
                 "back_hexcolor": ("STRING", {"multiline": False, "default": "#FFFFFF"}),
                 "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
                 "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
-                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Rounded"})
+                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Square"})
             },
         }
 
@@ -211,7 +210,7 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
                 "back_hexcolor": ("STRING", {"multiline": False, "default": "#FFFFFF"}),
                 "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
                 "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
-                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Rounded"})
+                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Square"})
             },
         }
 

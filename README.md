@@ -35,6 +35,24 @@ A dynamically sized QR code without any resampling scaled by the text length, th
   * `Quartile` - 25% error correction.
   * `High` - 30% error correction.
 * `border` - The border size (In multiples of `module` widths)
+* `module_drawer` - The shape the QR code modules should be
+  * `Square`
+  <img alt="Square Modules QR Example" src="img/square.png" width="100" height="100">
+
+  * `Gapped square`
+  <img alt="Gapped Square Modules QR Example" src="img/gapped_square.png" width="100" height="100">
+
+  * `Circle`
+  <img alt="Circle Modules QR Example" src="img/circle.png" width="100" height="100">
+
+  * `Rounded`
+  <img alt="Rounded Modules QR Example" src="img/rounded.png" width="100" height="100">
+
+  * `Vertical bars`
+  <img alt="Vertical Bars Modules QR Example" src="img/vertical-bars.png" width="100" height="100">
+
+  * `Horizontal bars`
+  <img alt="Horizontal Bars Modules QR Example" src="img/horizontal-bars.png" width="100" height="100">
 
 #### Outputs
 
@@ -74,6 +92,24 @@ A QR code fixed to specific output dimensions through image resampling.
   * `Hamming` - Hamming interpolation
   * `Lanczos` - Lanczos interpolation
   * `Nearest` - Nearest Neighbor interpolation
+* `module_drawer` - The shape the QR code modules should be
+  * `Square`
+  <img alt="Square Modules QR Example" src="img/square.png" width="100" height="100">
+
+  * `Gapped square`
+  <img alt="Gapped Square Modules QR Example" src="img/gapped_square.png" width="100" height="100">
+  
+  * `Circle`
+  <img alt="Circle Modules QR Example" src="img/circle.png" width="100" height="100">
+  
+  * `Rounded`
+  <img alt="Rounded Modules QR Example" src="img/rounded.png" width="100" height="100">
+  
+  * `Vertical bars`
+  <img alt="Vertical Bars Modules QR Example" src="img/vertical-bars.png" width="100" height="100">
+  
+  * `Horizontal bars`
+  <img alt="Horizontal Bars Modules QR Example" src="img/horizontal-bars.png" width="100" height="100">
 
 #### Outputs
 

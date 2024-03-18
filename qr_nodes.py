@@ -83,8 +83,8 @@ class QRBase:
             return VerticalBarsDrawer()
         if module_drawer_string == "Horizontal bars":
             return HorizontalBarsDrawer()
-        raise ValueError(f"Module drawing method of {module_drawer_string} f"
-                         "not supported")
+        raise ValueError(f"Module drawing method of {module_drawer_string} "
+                         f"not supported")
 
     def update_text(self, protocol, text):
         """This function takes input from a text box and a chosen internet

@@ -1,6 +1,10 @@
 import numpy as np
 import qrcode
-from qrcode.image.styles.moduledrawers import SquareModuleDrawer, GappedSquareModuleDrawer, CircleModuleDrawer, RoundedModuleDrawer, VerticalBarsDrawer, HorizontalBarsDrawer
+from qrcode.image.styles.moduledrawers import (GappedSquareModuleDrawer,
+                                               CircleModuleDrawer,
+                                               RoundedModuleDrawer,
+                                               VerticalBarsDrawer,
+                                               HorizontalBarsDrawer)
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.colormasks import SolidFillColorMask
 from qrcode.compat.pil import Image
@@ -56,11 +60,13 @@ class QRBase:
         try:
             return tuple(int(channel, 16) for channel in rgb)
         except ValueError:
-            raise ValueError(f"{parameter} contains invalid hexadecimal characters")
+            raise ValueError(f"{parameter} contains invalid hexadecimal "
+                             f"characters")
 
     def _validate_qr_size(self, size, max_size):
         if size > max_size:
-            raise RuntimeError(f"QR dimensions of {size} exceed max size of {max_size}.")
+            raise RuntimeError(f"QR dimensions of {size} exceed max size of "
+                               f"{max_size}.")
 
     def _select_module_drawer(self, module_drawer_string):
         """Square is not included in the results, for a speed optimization
@@ -77,7 +83,8 @@ class QRBase:
             return VerticalBarsDrawer()
         if module_drawer_string == "Horizontal bars":
             return HorizontalBarsDrawer()
-        raise ValueError(f"Module drawing method of {module_drawer_string} not supported")
+        raise ValueError(f"Module drawing method of {module_drawer_string} f"
+                         "not supported")
 
     def update_text(self, protocol, text):
         """This function takes input from a text box and a chosen internet
@@ -107,13 +114,34 @@ class QRByImageSize(QRBase):
             "required": {
                 "protocol": (["Http", "Https", "None"], {"default": "Https"}),
                 "text": ("STRING", {"multiline": True}),
-                "image_size": ("INT", {"default": 512, "min": 64, "max": 4096, "step": 64}),
-                "fill_hexcolor": ("STRING", {"multiline": False, "default": "#000000"}),
-                "back_hexcolor": ("STRING", {"multiline": False, "default": "#FFFFFF"}),
-                "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
-                "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
-                "resampling": (["Bicubic", "Bilinear", "Box", "Hamming", "Lanczos", "Nearest"], {"default": "Nearest"}),
-                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Square"})
+                "image_size": ("INT", {"default": 512,
+                                       "min": 64,
+                                       "max": 4096,
+                                       "step": 64}),
+                "fill_hexcolor": ("STRING", {"multiline": False,
+                                             "default": "#000000"}),
+                "back_hexcolor": ("STRING", {"multiline": False,
+                                             "default": "#FFFFFF"}),
+                "error_correction": (["Low", "Medium", "Quartile", "High"],
+                                     {"default": "High"}),
+                "border": ("INT", {"default": 1,
+                                   "min": 0,
+                                   "max": 100,
+                                   "step": 1}),
+                "resampling": (["Bicubic",
+                                "Bilinear",
+                                "Box",
+                                "Hamming",
+                                "Lanczos",
+                                "Nearest"
+                                ], {"default": "Nearest"}),
+                "module_drawer": (["Square",
+                                   "Gapped square",
+                                   "Circle",
+                                   "Rounded",
+                                   "Vertical bars",
+                                   "Horizontal bars"
+                                   ], {"default": "Square"})
             },
         }
 
@@ -133,7 +161,8 @@ class QRByImageSize(QRBase):
             return Image.BOX
         if resampling_string == "Hamming":
             return Image.HAMMING
-        raise ValueError(f"Resampling method of {resampling_string} not supported")
+        raise ValueError(f"Resampling method of {resampling_string} not "
+                         f"supported")
 
     def generate_qr(
             self,
@@ -168,18 +197,36 @@ class QRByModuleSize(QRBase):
             "required": {
                 "protocol": (["Http", "Https", "None"], {"default": "Https"}),
                 "text": ("STRING", {"multiline": True}),
-                "module_size": ("INT", {"default": 16, "min": 1, "max": 64, "step": 1}),
-                "max_image_size": ("INT", {"default": 512, "min": 64, "max": 4096, "step": 64}),
-                "fill_hexcolor": ("STRING", {"multiline": False, "default": "#000000"}),
-                "back_hexcolor": ("STRING", {"multiline": False, "default": "#FFFFFF"}),
-                "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
-                "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
-                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Square"})
+                "module_size": ("INT", {"default": 16,
+                                        "min": 1,
+                                        "max": 64,
+                                        "step": 1}),
+                "max_image_size": ("INT", {"default": 512,
+                                           "min": 64,
+                                           "max": 4096,
+                                           "step": 64}),
+                "fill_hexcolor": ("STRING", {"multiline": False,
+                                             "default": "#000000"}),
+                "back_hexcolor": ("STRING", {"multiline": False,
+                                             "default": "#FFFFFF"}),
+                "error_correction": (["Low", "Medium", "Quartile", "High"],
+                                     {"default": "High"}),
+                "border": ("INT", {"default": 1,
+                                   "min": 0,
+                                   "max": 100,
+                                   "step": 1}),
+                "module_drawer": (["Square",
+                                   "Gapped square",
+                                   "Circle",
+                                   "Rounded",
+                                   "Vertical bars",
+                                   "Horizontal bars"
+                                   ], {"default": "Square"})
             },
         }
 
     RETURN_TYPES = ("IMAGE", "INT", "INT")
-    RETURN_NAMES = ("QR_CODE", "QR_VERSION", "IMAGE_SIZE") 
+    RETURN_NAMES = ("QR_CODE", "QR_VERSION", "IMAGE_SIZE")
 
     def generate_qr(
             self,
@@ -213,18 +260,41 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
             "required": {
                 "protocol": (["Http", "Https", "None"], {"default": "Https"}),
                 "text": ("STRING", {"multiline": True}),
-                "module_size": ("INT", {"default": 16, "min": 1, "max": 64, "step": 1}),
-                "max_image_size": ("INT", {"default": 512, "min": 64, "max": 4096, "step": 64}),
-                "fill_hexcolor": ("STRING", {"multiline": False, "default": "#000000"}),
-                "back_hexcolor": ("STRING", {"multiline": False, "default": "#FFFFFF"}),
-                "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
-                "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
-                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Square"})
+                "module_size": ("INT", {"default": 16,
+                                        "min": 1,
+                                        "max": 64,
+                                        "step": 1}),
+                "max_image_size": ("INT", {"default": 512,
+                                           "min": 64,
+                                           "max": 4096,
+                                           "step": 64}),
+                "fill_hexcolor": ("STRING", {"multiline": False,
+                                             "default": "#000000"}),
+                "back_hexcolor": ("STRING", {"multiline": False,
+                                             "default": "#FFFFFF"}),
+                "error_correction": (["Low", "Medium", "Quartile", "High"],
+                                     {"default": "High"}),
+                "border": ("INT", {"default": 1,
+                                   "min": 0,
+                                   "max": 100,
+                                   "step": 1}),
+                "module_drawer": (["Square",
+                                   "Gapped square",
+                                   "Circle",
+                                   "Rounded",
+                                   "Vertical bars",
+                                   "Horizontal bars"
+                                   ], {"default": "Square"})
             },
         }
 
     RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "MASK", "INT", "INT")
-    RETURN_NAMES = ("QR_CODE", "MODULE_LAYER", "FINDER_LAYER", "FINDER_MASK", "QR_VERSION", "IMAGE_SIZE")
+    RETURN_NAMES = ("QR_CODE",
+                    "MODULE_LAYER",
+                    "FINDER_LAYER",
+                    "FINDER_MASK",
+                    "QR_VERSION",
+                    "IMAGE_SIZE")
 
     def _generate_finder_pattern_ranges(self, module_size, border_size):
         outer = module_size * border_size
@@ -237,9 +307,16 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
             (-inner, far_outer, outer, inner)
         ]
 
-    def _generate_finder_pattern_mask(self, pixel_size, module_size, border_size):
+    def _generate_finder_pattern_mask(self,
+                                      pixel_size,
+                                      module_size,
+                                      border_size):
         mask = np.zeros((pixel_size, pixel_size), dtype=bool)
-        for x_min, x_max, y_min, y_max in self._generate_finder_pattern_ranges(module_size, border_size):
+        for (x_min,
+             x_max,
+             y_min,
+             y_max) in self._generate_finder_pattern_ranges(module_size,
+                                                            border_size):
             mask[y_min:y_max, x_min:x_max] = True
         return mask
 
@@ -275,7 +352,9 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
         img = self._make_qr(qr, fill_hexcolor, back_hexcolor, module_drawer)
         pixel_size = img.pixel_size
         self._validate_qr_size(pixel_size, max_image_size)
-        mask = self._generate_finder_pattern_mask(pixel_size, module_size, border)
+        mask = self._generate_finder_pattern_mask(pixel_size,
+                                                  module_size,
+                                                  border)
         module_image = self._apply_fill_to_mask(img, mask)
         function_image = self._apply_fill_to_mask(img, ~mask)
         return (
@@ -306,13 +385,24 @@ class QRErrorMasker:
             "required": {
                 "source_qr": ("IMAGE",),
                 "modified_qr": ("IMAGE",),
-                "module_size": ("INT", {"default": 16, "min": 1, "max": 64, "step": 1}),
-                "grayscale_method": (["mean", "luminance"], {"default": "luminance"}),
+                "module_size": ("INT", {"default": 16,
+                                        "min": 1,
+                                        "max": 64,
+                                        "step": 1}),
+                "grayscale_method": (["mean", "luminance"],
+                                     {"default": "luminance"}),
                 "aggregate_method": (["mean",], {"default": "mean"}),
-                "evaluate": (["full_qr", "module_pattern", "finder_pattern"], {"default": "module_pattern"}),
-                "error_difficulty": ("FLOAT", {"default": 0, "min": 0, "max": 1, "step": .01}),
+                "evaluate": (["full_qr", "module_pattern", "finder_pattern"],
+                             {"default": "module_pattern"}),
+                "error_difficulty": ("FLOAT", {"default": 0,
+                                               "min": 0,
+                                               "max": 1,
+                                               "step": .01}),
                 "inverted_pattern": ("BOOLEAN", {"default": False}),
-                "gamma": ("FLOAT", {"default": 2.2, "min": .1, "max": 2.8, "step": .1}),
+                "gamma": ("FLOAT", {"default": 2.2,
+                                    "min": .1,
+                                    "max": 2.8,
+                                    "step": .1}),
             },
         }
 
@@ -322,10 +412,13 @@ class QRErrorMasker:
         indices = torch.nonzero(module_pixels, as_tuple=True)
         # The viewer patterns will guarentee a module pixel in the upper left
         # The bottom right does not have that guarentee so max is used.
-        return indices[0][0], indices[0].max() + 1, indices[1][0], indices[1].max() + 1
+        return (indices[0][0],
+                indices[0].max() + 1,
+                indices[1][0], indices[1].max() + 1)
 
     def _extract_pattern_from_bounds(self, tensor):
-        return tensor[self.qr_bounds[0]:self.qr_bounds[1], self.qr_bounds[2]:self.qr_bounds[3]]
+        return tensor[self.qr_bounds[0]: self.qr_bounds[1],
+                      self.qr_bounds[2]: self.qr_bounds[3]]
 
     def _trim_to_qr_area(self, source_qr, modified_qr, inverted_pattern):
         self.qr_bounds = self._get_qr_bounds(source_qr, inverted_pattern)
@@ -336,24 +429,35 @@ class QRErrorMasker:
 
     def _reshape_tensor_to_modules(self, tensor):
         if len(tensor.shape) != 2:
-            raise RuntimeError("Module reshaping requires a 2 dimensional array.")
+            raise RuntimeError("Module reshaping requires a 2 dimensional "
+                               "array.")
         length = tensor.shape[0] // self.module_size
-        reshaped_tensor = tensor.view(length, self.module_size, length, self.module_size)
+        reshaped_tensor = tensor.view(length,
+                                      self.module_size,
+                                      length,
+                                      self.module_size)
         rehaped_tensor = reshaped_tensor.permute(0, 2, 1, 3).contiguous()
         return rehaped_tensor.view(length, length, self.module_size ** 2)
 
     def _check_bounds_and_module_size(self):
         height = self.qr_bounds[1] - self.qr_bounds[0]
         width = self.qr_bounds[3] - self.qr_bounds[2]
-        color_warning = "Make sure that qr_fill and back colors have exact #FFFFFFF and #000000 values (and that module color values do not occur outside the QR) and invert is set correctly."
+        color_warning = "Make sure that qr_fill and back colors have exact "
+        "#FFFFFFF and #000000 values (and that module color values do not "
+        "occur outside the QR) and invert is set correctly."
         if width != height:
-            raise RuntimeError(f"Source QR dimensions are {width} x {height}. They must be a perfect square. {color_warning}")
+            raise RuntimeError(f"Source QR dimensions are {width} x {height}. "
+                               f"They must be a perfect square. "
+                               f"{color_warning}")
         if width % self.module_size:
-            raise RuntimeError(f"QR width of {width} does not fit module_size of {self.module_size}. It must be perfectly divisible. {color_warning}")
+            raise RuntimeError(f"QR width of {width} does not fit module_size "
+                               f"of {self.module_size}. It must be perfectly "
+                               f"divisible. {color_warning}")
 
     def _check_equal_shape(self, source_qr, modified_qr):
         if source_qr.shape != modified_qr.shape:
-            raise ValueError("Source and modified QR must have the same batch size and dimensions.")
+            raise ValueError("Source and modified QR must have the same batch "
+                             "size and dimensions.")
 
     def _squeeze_by_mean(self, tensor):
         return torch.mean(tensor, dim=-1)
@@ -362,14 +466,18 @@ class QRErrorMasker:
         if gamma == 1:
             return tensor
         if gamma == 2.2:
-            return torch.where(tensor <= 0.04045, tensor / 12.92, ((tensor + 0.055) / 1.055) ** 2.4)
+            return torch.where(tensor <= 0.04045,
+                               tensor / 12.92,
+                               (tensor + 0.055) / 1.055) ** 2.4
         return tensor ** gamma
 
     def _gamma_compression(self, tensor, gamma):
         if gamma == 1:
             return tensor
         if gamma == 2.2:
-            return torch.where(tensor <= .0031308, tensor * 12.92, 1.055 * tensor ** (1/2.4) - 0.055)
+            return torch.where(tensor <= .0031308,
+                               tensor * 12.92,
+                               1.055 * tensor ** (1/2.4) - 0.055)
         return tensor ** (1/gamma)
 
     def _grayscale_by_luminance(self, tensor, gamma):
@@ -384,7 +492,8 @@ class QRErrorMasker:
         tensor = self._reshape_tensor_to_modules(tensor)
         if method == "mean":
             return self._squeeze_by_mean(tensor)
-        raise RuntimeError("Module aggregation currently only supports the mean.")
+        raise RuntimeError("Module aggregation currently only supports the "
+                           "mean.")
 
     def _reduce_to_modules(
             self,
@@ -409,7 +518,8 @@ class QRErrorMasker:
         elif grayscale_method == "luminance":
             modified_qr = self._grayscale_by_luminance(modified_qr, gamma)
         else:
-            raise ValueError("Currently only mean is supported for rgb to grayscale conversion.")
+            raise ValueError("Currently only mean is supported for rgb to "
+                             "grayscale conversion.")
         source_qr = torch.round(self._squeeze_to_modules(source_qr, "mean"))
         modified_qr = self._squeeze_to_modules(modified_qr, aggregate_method)
         return source_qr, modified_qr
@@ -445,7 +555,9 @@ class QRErrorMasker:
     def _replace_qr_to_canvas(self, tensor):
         length = tensor.shape[0] * self.module_size
         bounds = self.qr_bounds
-        tensor = F.interpolate(tensor.unsqueeze(0).unsqueeze(0), size=(length, length), mode='nearest')
+        tensor = F.interpolate(tensor.unsqueeze(0).unsqueeze(0),
+                               size=(length, length),
+                               mode='nearest')
         canvas = torch.zeros(self.canvas_shape, dtype=torch.float32)
         canvas[bounds[0]:bounds[1], bounds[2]:bounds[3]] = tensor.squeeze()
         return canvas
@@ -457,12 +569,14 @@ class QRErrorMasker:
             mask,
             error_difficulty
             ):
-        modified_qr = self._bin_tensor_to_threshold(modified_qr, error_difficulty)
+        modified_qr = self._bin_tensor_to_threshold(modified_qr,
+                                                    error_difficulty)
         error = source_qr != modified_qr
         percent_error = error[mask].sum().item() / error[mask].numel()
         if mask is not None:
             error[~mask] = False
-        return self._replace_qr_to_canvas((error).to(torch.float32)), percent_error
+        return (self._replace_qr_to_canvas((error).to(torch.float32)),
+                percent_error)
 
     def _qr_correlation(self, source_qr, modified_qr, mask):
         source_qr = source_qr[mask].numpy().reshape((-1))
@@ -516,14 +630,16 @@ class QRErrorMasker:
 NODE_CLASS_MAPPINGS = {
                        "comfy-qr-by-module-size": QRByModuleSize,
                        "comfy-qr-by-image-size": QRByImageSize,
-                       "comfy-qr-by-module-split": QRByModuleSizeSplitFunctionPatterns,
+                       "comfy-qr-by-module-split":
+                       QRByModuleSizeSplitFunctionPatterns,
                        "comfy-qr-mask_errors": QRErrorMasker,
                        }
 
 
 NODE_DISPLAY_NAME_MAPPINGS = {
                               "comfy-qr-by-module-size": "QR Code",
-                              "comfy-qr-by-image-size": "QR Code (Conformed to Image Size)",
+                              "comfy-qr-by-image-size": "QR Code (Conformed "
+                              "to Image Size)",
                               "comfy-qr-by-module-split": "QR Code (Split)",
                               "comfy-qr-mask_errors": "Mask QR Errors",
                               }

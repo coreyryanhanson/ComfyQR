@@ -342,7 +342,8 @@
         "#DDDDDD",
         "High",
         1,
-        "Nearest"
+        "Nearest",
+        "Square"
       ]
     }
   ],

@@ -70,7 +70,8 @@
         "FF0",
         "High",
         1,
-        "Nearest"
+        "Nearest",
+        "Circle"
       ]
     }
   ],

@@ -35,6 +35,7 @@ A dynamically sized QR code without any resampling scaled by the text length, th
   * `Quartile` - 25% error correction.
   * `High` - 30% error correction.
 * `border` - The border size (In multiples of `module` widths)
+* `module_drawer` - The shape the QR code modules should be. The default is `square`, but see [Alternate Module Drawers](#alternate-module-drawers) below for new examples.
 
 #### Outputs
 
@@ -74,6 +75,7 @@ A QR code fixed to specific output dimensions through image resampling.
   * `Hamming` - Hamming interpolation
   * `Lanczos` - Lanczos interpolation
   * `Nearest` - Nearest Neighbor interpolation
+* `module_drawer` - The shape the QR code modules should be. The default is `square`, but see [Alternate Module Drawers](#alternate-module-drawers) below for new examples.
 
 #### Outputs
 
@@ -128,6 +130,16 @@ And then aggressively increasing the strength of the ControlNet on only the erro
 ![Fixed Scan Example](example_generations/unscannable_00001_fixed_.png)
 
 Any workflow in the example that ends with "validated" (and a few image examples) assume the installation of the [scanning pack](https://gitlab.com/sofuego-comfy-nodes/ComfyQR-scanning-nodes) as well.
+
+## Alternate Module Drawers
+
+The QR generation nodes now support alternate module styles. Experiment using different ones for greater flexibility during generation.
+
+| Square | Gapped Square | Circle | Rounded | Vertical bars | Horizontal bars |
+|:---: | :---: | :---: | :---: | :---: | :---: |
+| ![Example QR](/img/square.png) | ![Example QR](img/gapped_square.png) | ![Example QR](img/circle.png) | ![Example QR](img/rounded.png) | ![Example QR](img/vertical-bars.png) | ![Example QR](img/horizontal-bars.png) |
+
+**Note** _Even unaltered non square styles will inherently register small deviations from RMSE values and possible minute deviations for correlations when using the [Mask QR Errors](#mask-qr-errors) node. When information is extracted, the `source_qr` values are rounded so that they can only be 0 or 1 (to allow alternate drawers to be used as inputs) and matched against the unrounded aggregation of the `modified_qr` values._
 
 ## Future updates
 

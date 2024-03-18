@@ -1,5 +1,8 @@
 import numpy as np
 import qrcode
+from qrcode.image.styles.moduledrawers import SquareModuleDrawer, GappedSquareModuleDrawer, CircleModuleDrawer, RoundedModuleDrawer, VerticalBarsDrawer, HorizontalBarsDrawer
+from qrcode.image.styledpil import StyledPilImage
+from qrcode.image.styles.colormasks import SolidFillColorMask
 from qrcode.compat.pil import Image
 import torch
 import torch.nn.functional as F
@@ -27,11 +30,19 @@ class QRBase:
         out_image = np.array(img, dtype=np.uint8).astype(np.float32) / 255
         return torch.from_numpy(out_image).unsqueeze(0)
 
-    def _make_qr(self, qr, fill_hexcolor, back_hexcolor):
+    def _make_qr(self, qr, fill_hexcolor, back_hexcolor, module_drawer):
         self.fill = self._parse_hexcolor_string(fill_hexcolor, "fill_hexcolor")
         self.back = self._parse_hexcolor_string(back_hexcolor, "back_hexcolor")
         qr.make(fit=True)
-        return qr.make_image(fill_color=self.fill, back_color=self.back)
+        if module_drawer == "Square":
+            # Keeps using Square QR generation the old way for faster speeds.
+            return qr.make_image(fill_color=self.fill, back_color=self.back)
+        color_mask = SolidFillColorMask(back_color=self.back,
+                                        front_color=self.fill)
+        module_drawing_method = self._select_module_drawer(module_drawer)
+        return qr.make_image(image_factory=StyledPilImage,
+                             color_mask=color_mask,
+                             module_drawer=module_drawing_method)
 
     def _parse_hexcolor_string(self, s, parameter):
         if s.startswith("#"):
@@ -50,6 +61,23 @@ class QRBase:
     def _validate_qr_size(self, size, max_size):
         if size > max_size:
             raise RuntimeError(f"QR dimensions of {size} exceed max size of {max_size}.")
+
+    def _select_module_drawer(self, module_drawer_string):
+        """Square is not included in the results, for a speed optimization
+        applying color masks. Current version of python-qr code suffers a
+        slowdown when using custom colors combined with custom module drawers.
+        By bypassing square QRs, non standard colors will load faster."""
+        if module_drawer_string == "Gapped square":
+            return GappedSquareModuleDrawer()
+        if module_drawer_string == "Circle":
+            return CircleModuleDrawer()
+        if module_drawer_string == "Rounded":
+            return RoundedModuleDrawer()
+        if module_drawer_string == "Vertical bars":
+            return VerticalBarsDrawer()
+        if module_drawer_string == "Horizontal bars":
+            return HorizontalBarsDrawer()
+        raise ValueError(f"Module drawing method of {module_drawer_string} not supported")
 
     def update_text(self, protocol, text):
         """This function takes input from a text box and a chosen internet
@@ -85,6 +113,7 @@ class QRByImageSize(QRBase):
                 "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
                 "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
                 "resampling": (["Bicubic", "Bilinear", "Box", "Hamming", "Lanczos", "Nearest"], {"default": "Nearest"}),
+                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Square"})
             },
         }
 
@@ -115,18 +144,18 @@ class QRByImageSize(QRBase):
             back_hexcolor,
             error_correction,
             border,
-            resampling
+            resampling,
+            module_drawer
             ):
         resampling_method = self._select_resampling_method(resampling)
         error_level = self._get_error_correction_constant(error_correction)
         self.update_text(protocol, text)
         qr = qrcode.QRCode(
                 error_correction=error_level,
-                box_size=1,
+                box_size=16,
                 border=border)
         qr.add_data(self.text)
-        img = self._make_qr(qr, fill_hexcolor, back_hexcolor)
-        self._validate_qr_size(img.pixel_size, image_size)
+        img = self._make_qr(qr, fill_hexcolor, back_hexcolor, module_drawer)
         img = img.resize((image_size, image_size), resample=resampling_method)
         return (self._img_to_tensor(img), qr.version)
 
@@ -145,11 +174,12 @@ class QRByModuleSize(QRBase):
                 "back_hexcolor": ("STRING", {"multiline": False, "default": "#FFFFFF"}),
                 "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
                 "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
+                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Square"})
             },
         }
 
     RETURN_TYPES = ("IMAGE", "INT", "INT")
-    RETURN_NAMES = ("QR_CODE", "QR_VERSION", "IMAGE_SIZE")
+    RETURN_NAMES = ("QR_CODE", "QR_VERSION", "IMAGE_SIZE") 
 
     def generate_qr(
             self,
@@ -160,7 +190,8 @@ class QRByModuleSize(QRBase):
             fill_hexcolor,
             back_hexcolor,
             error_correction,
-            border
+            border,
+            module_drawer
             ):
         self.update_text(protocol, text)
         error_level = self._get_error_correction_constant(error_correction)
@@ -169,7 +200,7 @@ class QRByModuleSize(QRBase):
                 box_size=module_size,
                 border=border)
         qr.add_data(self.text)
-        img = self._make_qr(qr, fill_hexcolor, back_hexcolor)
+        img = self._make_qr(qr, fill_hexcolor, back_hexcolor, module_drawer)
         self._validate_qr_size(img.pixel_size, max_image_size)
         return (self._img_to_tensor(img), qr.version, img.pixel_size)
 
@@ -188,6 +219,7 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
                 "back_hexcolor": ("STRING", {"multiline": False, "default": "#FFFFFF"}),
                 "error_correction": (["Low", "Medium", "Quartile", "High"], {"default": "High"}),
                 "border": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1}),
+                "module_drawer": (["Square", "Gapped square", "Circle", "Rounded", "Vertical bars", "Horizontal bars"], {"default": "Square"})
             },
         }
 
@@ -230,7 +262,8 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
             fill_hexcolor,
             back_hexcolor,
             error_correction,
-            border
+            border,
+            module_drawer
             ):
         self.update_text(protocol, text)
         error_level = self._get_error_correction_constant(error_correction)
@@ -239,7 +272,7 @@ class QRByModuleSizeSplitFunctionPatterns(QRBase):
                 box_size=module_size,
                 border=border)
         qr.add_data(self.text)
-        img = self._make_qr(qr, fill_hexcolor, back_hexcolor)
+        img = self._make_qr(qr, fill_hexcolor, back_hexcolor, module_drawer)
         pixel_size = img.pixel_size
         self._validate_qr_size(pixel_size, max_image_size)
         mask = self._generate_finder_pattern_mask(pixel_size, module_size, border)
@@ -377,7 +410,7 @@ class QRErrorMasker:
             modified_qr = self._grayscale_by_luminance(modified_qr, gamma)
         else:
             raise ValueError("Currently only mean is supported for rgb to grayscale conversion.")
-        source_qr = self._squeeze_to_modules(source_qr, "mean")
+        source_qr = torch.round(self._squeeze_to_modules(source_qr, "mean"))
         modified_qr = self._squeeze_to_modules(modified_qr, aggregate_method)
         return source_qr, modified_qr
 

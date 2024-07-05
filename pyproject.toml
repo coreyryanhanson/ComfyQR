@@ -2,7 +2,7 @@
 name = "comfyqr"
 description = "QR generation within ComfyUI. Contains nodes suitable for workflows from generating basic QR images to techniques with advanced QR masking."
 version = "0.4.0"
-license = {file = "LICENSE"}
+license = "LICENSE"
 dependencies = ["qrcode >= 7.1"]
 
 [project.urls]

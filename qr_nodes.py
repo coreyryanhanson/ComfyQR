@@ -7,7 +7,7 @@ from qrcode.image.styles.moduledrawers import (GappedSquareModuleDrawer,
                                                HorizontalBarsDrawer)
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.colormasks import SolidFillColorMask
-from qrcode.compat.pil import Image
+from PIL import Image
 import torch
 import torch.nn.functional as F
 
